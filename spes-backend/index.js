@@ -14,14 +14,16 @@ mongoose.connect(
   "mongodb+srv://typingmistake:ekthatiger@cluster0.yfwcd.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
 );
 
+// ## Login & Register #############################333
 app.post("/api/register", async (req, res) => {
   try {
-    const user = await User.create({
+    const newPassword = await bcrypt.hash(req.body.password, 10)
+    await User.create({
       name: req.body.name,
       email: req.body.email,
-      password: req.body.password,
+      password: newPassword,
     });
-    res.json({ status: "ok", user: true });
+    res.json({ status: "ok" });
   } catch (e) {
     res.json({ status: "error", error: e });
   }
@@ -30,9 +32,12 @@ app.post("/api/login", async (req, res) => {
   try {
     const user = await User.findOne({
       email: req.body.email,
-      password: req.body.password,
     });
-    if (user) {
+    const isPasswordValid = await bcrypt.compare(req.body.password, user.password)
+    if(!user){
+      return res.json({status:'error', error: 'Invalid email or password'})
+    }
+    if (isPasswordValid) {
       const token = jwt.sign(
         { email: user.email, name: user.name },
         jwt_secret
@@ -43,6 +48,40 @@ app.post("/api/login", async (req, res) => {
     res.json({ status: "error", error: e });
   }
 });
+// ##############################################
+
+// ## Dashboard ##################################
+app.get("/api/dashboard", async (req, res) => {
+  const token = req.headers["x-access-token"];
+
+  try {
+    const decoded = jwt.verify(token, jwt_secret);
+    const email = decoded.email;
+    const user = await User.findOne({ email: email });
+
+    return res.json({ status: "ok", name: user.name });
+  } catch (error) {
+    console.log(error);
+    res.json({ status: "error", error: "invalid token" });
+  }
+});
+
+app.post("/api/quote", async (req, res) => {
+  const token = req.headers["x-access-token"];
+
+  try {
+    const decoded = jwt.verify(token, jwt_secret);
+    const email = decoded.email;
+    await User.updateOne({ email: email }, { $set: { name: req.body.name } });
+
+    return res.json({ status: "ok" });
+  } catch (error) {
+    console.log(error);
+    res.json({ status: "error", error: "invalid token" });
+  }
+});
+// ###############################################
+
 app.get("/status", (req, res) => {
   console.log("Hello");
 });
@@ -50,5 +89,3 @@ app.get("/status", (req, res) => {
 app.listen(1337, () => {
   console.log("Server started on 1337");
 });
-
-

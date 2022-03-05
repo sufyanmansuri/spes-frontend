@@ -1,9 +1,15 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Signup = () => {
-  async function registerUser(e) {
-    e.preventDefault();
+  const history = useNavigate();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  async function registerUser(event) {
+    event.preventDefault();
+
     const response = await fetch("http://localhost:1337/api/register", {
       method: "POST",
       headers: {
@@ -15,12 +21,13 @@ const Signup = () => {
         password,
       }),
     });
-    const data = response.json();
-    console.log(data);
+
+    const data = await response.json();
+
+    if (data.status === "ok") {
+      history("/");
+    }
   }
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
 
   return (
     <div className="h-screen flex justify-center items-center bg-gray-100">

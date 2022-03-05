@@ -2,33 +2,33 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 const Signin = () => {
-    async function loginUser(e) {
-        e.preventDefault();
-        const response = await fetch("http://localhost:1337/api/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email,
-            password,
-          }),
-        });
-        const data = await response.json();
-        if (data.user) {
-			localStorage.setItem('token', data.user)
-			alert('Login successful')
-			window.location.href = '/dashboard'
-		} else {
-			alert('Please check your username and password')
-		}
-      }
+  async function loginUser(e) {
+    e.preventDefault();
+    const response = await fetch("http://localhost:1337/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    });
+    const data = await response.json();
+    if (data.user) {
+      localStorage.setItem("token", data.user);
+      alert("Login successful");
+      window.location.href = "/dashboard";
+    } else {
+      alert("Please check your username and password");
+    }
+  }
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   return (
     <div className="h-screen flex bg-gray-100">
-      <div className="w-full max-w-md m-auto bg-white rounded-lg border border-primaryBorder shadow-default py-10 px-16">
+      <div className="w-full max-w-md m-auto bg-white rounded-lg border border-primaryBorder drop-shadow py-10 px-16">
         <h1 className="text-2xl font-medium text-primary mt-4 mb-12 text-center">
           Log in to your account{" "}
           <span role="img" aria-label="lock-with-key">
