@@ -1,4 +1,27 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+#server
+
+# dependencies
+/spes-backend/node_modules
+/spes-backend/.pnp
+/spes-backend/.pnp.js
+
+# testing
+/spes-backend/coverage
+
+# production
+/spes-backend/build
+
+# misc
+/spes-backend/.DS_Store
+/spes-backend/.env.local
+/spes-backend/.env.development.local
+/spes-backend/.env.test.local
+/spes-backend/.env.production.local
+
+/spes-backend/npm-debug.log*
+/spes-backend/yarn-debug.log*
+/spes-backend/yarn-error.log*
 
 # dependencies
 /node_modules
