@@ -18,6 +18,11 @@
   },
   "homepage": "https://github.com/sufyanmansuri/spes-backend#readme",
   "dependencies": {
+    "@adminjs/express": "^4.1.0",
+    "@adminjs/mongoose": "^2.0.2",
+    "@adminjs/passwords": "^2.0.0",
+    "adminjs": "^5.7.4",
+    "argon2": "^0.28.5",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "express": "^4.17.3",
