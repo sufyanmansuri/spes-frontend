@@ -3,6 +3,9 @@ const app = express();
 const cors = require("cors");
 const mongoose = require("mongoose");
 const User = require("./models/user");
+const Grades = require("./models/grades");
+const Student = require("./models/student");
+const Subject = require("./models/subject");
 const jwt = require("jsonwebtoken");
 // const bcrypt = require("bcryptjs");
 const argon2 = require("argon2");
@@ -33,7 +36,7 @@ const run = async () => {
           },
           listProperties: ["_id", "email", "name", "createdAt", "updatedAt"],
           properties: { encrypted: { isVisible: false } },
-          editProperties: ["email", "name", "quote","password"],
+          editProperties: ["email", "name", "quote", "password"],
         },
         features: [
           passwordFeature({
@@ -44,9 +47,42 @@ const run = async () => {
           }),
         ],
       },
+      {
+        resource: Student,
+        options: {
+          navigation: {
+            icon: "Education",
+          },
+          editProperties: [
+            "email",
+            "firstName",
+            "lastName",
+            "semester",
+            "term",
+          ],
+        },
+      },
+      {
+        resource: Subject,
+        options: {
+          navigation: {
+            icon: "Catalog",
+          },
+          editProperties: ["subName", "semester", "term"],
+        },
+      },
+      {
+        resource: Grades,
+        options: {
+          navigation: {
+            icon: "Events",
+          },
+          editProperties: ["student", "subject", "semester", "marks"],
+        },
+      },
     ],
     branding: {
-      companyName: "SPES",
+      companyName: "SPES - Student Performance Evaluation System",
       favicon: "http://localhost:3000/favicon.ico",
     },
   });
