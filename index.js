@@ -7,15 +7,17 @@ const Grades = require("./models/grades");
 const Student = require("./models/student");
 const Subject = require("./models/subject");
 const jwt = require("jsonwebtoken");
-// const bcrypt = require("bcryptjs");
+const bcrypt = require("bcryptjs");
 const argon2 = require("argon2");
 const { jwt_secret } = require("./keys");
 const AdminJS = require("adminjs");
 const AdminJSMongoose = require("@adminjs/mongoose");
 const AdminJSExpress = require("@adminjs/express");
-const passwordFeature = require("@adminjs/passwords");
+
+
 AdminJS.registerAdapter(AdminJSMongoose);
 
+app.use(express.static('public'))
 app.use(cors());
 app.use(express.json());
 
@@ -23,7 +25,8 @@ const run = async () => {
   const mongooseDb = await mongoose.connect(
     "mongodb+srv://typingmistake:ekthatiger@cluster0.yfwcd.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
   );
-
+  const canModifyUsers = ({ currentAdmin }) =>
+    currentAdmin && currentAdmin.role === "admin";
   const adminJs = new AdminJS({
     databases: [mongooseDb],
     rootPath: "/admin",
@@ -34,18 +37,41 @@ const run = async () => {
           navigation: {
             icon: "Events",
           },
-          listProperties: ["_id", "email", "name", "createdAt", "updatedAt"],
-          properties: { encrypted: { isVisible: false } },
-          editProperties: ["email", "name", "quote", "password"],
-        },
-        features: [
-          passwordFeature({
-            properties: {
-              encryptedPassword: "password",
+          properties: {
+            _id:{
+              isTitle: true,
             },
-            hash: argon2.hash,
-          }),
-        ],
+            password: {
+              type: "string",
+              isVisible: {
+                list: false,
+                edit: true,
+                filter: false,
+                show: false,
+              },
+            },
+          },
+          actions: {
+            new: {
+              before: async (request) => {
+                if (request.payload.password) {
+                  request.payload = {
+                    ...request.payload,
+                    encryptedPassword: await bcrypt.hash(
+                      request.payload.password,
+                      10
+                    ),
+                    password: undefined,
+                  };
+                }
+                return request;
+              },
+            },
+            edit: { isAccessible: canModifyUsers },
+            delete: { isAccessible: canModifyUsers },
+            new: { isAccessible: canModifyUsers },
+          },
+        },
       },
       {
         resource: Student,
@@ -83,11 +109,33 @@ const run = async () => {
     ],
     branding: {
       companyName: "SPES - Student Performance Evaluation System",
-      favicon: "http://localhost:3000/favicon.ico",
+      favicon: "http://localhost:1337/favicon.ico",
+      logo: "http://localhost:1337/logo.png",
+      softwareBrothers: false,
+    },
+    locale: {
+      translations: {
+        messages: {
+          loginWelcome: "To SPES - Student Performance Evaluation System",
+        },
+      }
     },
   });
 
-  const router = AdminJSExpress.buildRouter(adminJs);
+  const router = AdminJSExpress.buildAuthenticatedRouter(adminJs, {
+    authenticate: async (email, password) => {
+      const user = await User.findOne({ email });
+      if (user) {
+        const matched = await argon2.verify(user.password, password);
+        if (matched) {
+          return user;
+        }
+      }
+      return false;
+    },
+    cookiePassword: "some-secret-password-used-to-secure-cookie",
+  });
+
   app.use(adminJs.options.rootPath, router);
 };
 
