@@ -37,6 +37,7 @@ const run = async () => {
           navigation: {
             icon: "Events",
           },
+          editProperties: ["email", "name", "role", "password"],
           properties: {
             _id:{
               isTitle: true,
