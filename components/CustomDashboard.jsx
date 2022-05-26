@@ -5,7 +5,8 @@ const Title = styled.h1`
   font-size: 48px;
   text-align: center;
   background: #00000068;
-  width: 100%;
+  width: 45%;
+  padding-top: 0.5em;
   border-radius: 10px 10px 0 0;
 `;
 
@@ -27,8 +28,8 @@ const Subtitle = styled.h1`
   font-size: 24px;
   text-align: center;
   background: #00000068;
-  width: 100%;
-  padding-bottom: 5px;
+  width: 45%;
+  padding-bottom: 1em;
   border-radius: 0 0 10px 10px;
 `;
 
