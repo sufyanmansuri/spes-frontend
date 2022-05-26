@@ -3,6 +3,9 @@ const app = express();
 const cors = require("cors");
 const mongoose = require("mongoose");
 const User = require("./models/user");
+const Assignments = require("./models/assignments");
+const Attendance = require("./models/attendance");
+const studentAssignments = require("./models/studentAssignment");
 const Grades = require("./models/grades");
 const Student = require("./models/student");
 const Subject = require("./models/subject");
@@ -30,6 +33,9 @@ const run = async () => {
     currentAdmin && currentAdmin.role === "admin";
   const adminJs = new AdminJS({
     databases: [mongooseDb],
+    dashboard: {
+      component: AdminJS.bundle("./components/CustomDashboard"),
+    },
     rootPath: "/admin",
     resources: [
       {
@@ -40,7 +46,7 @@ const run = async () => {
           },
           editProperties: ["email", "name", "role", "password"],
           properties: {
-            _id:{
+            _id: {
               isTitle: true,
             },
             password: {
@@ -72,6 +78,7 @@ const run = async () => {
             edit: { isAccessible: canModifyUsers },
             delete: { isAccessible: canModifyUsers },
             new: { isAccessible: canModifyUsers },
+            show: { isAccessible: canModifyUsers },
           },
         },
         features: [
@@ -87,6 +94,7 @@ const run = async () => {
         resource: Student,
         options: {
           navigation: {
+            name: "Students",
             icon: "Education",
           },
           editProperties: [
@@ -96,6 +104,11 @@ const run = async () => {
             "semester",
             "term",
           ],
+          properties: {
+            _id: {
+              isVisible: false,
+            },
+          },
         },
       },
       {
@@ -108,15 +121,66 @@ const run = async () => {
         },
       },
       {
+        resource: Assignments,
+        options: {
+          editProperties: ["subject", "assignment", "lastDate"],
+          navigation: {
+            icon: "Task"
+          },
+          properties:{
+            _id:{
+              isVisible: false,
+            },
+            subject:{
+              isTitle: true,
+            },
+          },
+        },
+      },
+      {
+        resource: studentAssignments,
+        options: {
+          editProperties: ["student", "assignment", "isSubmitted", "submissionDate"],
+          navigation: {
+            name: "Students",
+          },
+          properties:{
+            _id: {
+              isVisible: false,
+            }
+          }
+        },
+      },
+      {
+        resource: Attendance,
+        options: {
+          editProperties:["subject", "student", "attendance"],
+          navigation: {
+            name: "Students",
+          },
+          properties:{
+            _id:{
+              isVisible: false,
+            },
+          }
+        },
+      },
+      {
         resource: Grades,
         options: {
           navigation: {
-            icon: "Events",
+            icon: "Activity",
           },
-          editProperties: ["student", "subject", "semester", "marks"],
+          editProperties: ["student", "subject", "marks"],
         },
       },
     ],
+    pages:{
+      Reports:{
+        label: "Reports",
+        component: AdminJS.bundle("./components/CustomReportPage"),
+      }
+    },
     branding: {
       companyName: "SPES - Student Performance Evaluation System",
       favicon: "http://localhost:1337/favicon.ico",
@@ -126,7 +190,7 @@ const run = async () => {
     locale: {
       translations: {
         messages: {
-          loginWelcome: "To SPES - Student Performance Evaluation System",
+          loginWelcome: "To SPES - Student Performance Evaluation System.",
         },
       }
     },
