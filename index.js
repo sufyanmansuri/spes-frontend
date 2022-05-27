@@ -176,10 +176,10 @@ const run = async () => {
       },
     ],
     pages:{
-      Reports:{
-        label: "Reports",
+      Report:{
+        label: "Report",
         component: AdminJS.bundle("./components/CustomReportPage"),
-      }
+      },
     },
     branding: {
       companyName: "SPES - Student Performance Evaluation System",
